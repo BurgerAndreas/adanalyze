@@ -1,73 +1,30 @@
 
 ==========      
 ad_analyze
-==========
-von ANDREAS BURGER
+========== 
+by ANDREAS BURGER (2020) 
+as part of his Bachelor thesis "Analyse adjazenter Flusslinien im simulierten Supraleiter"
 
-eng:
-    adjacency | to be adjacent to 
-de:
-    Adjazenz | der Adjazent | adj: adjazent zu | verb: etwas adjazieren
     
     
 QUICKSTART
 ==========
-    (0) Beispiele für Daten und Plots finden sich in /Output/Plots
+    (0) Examples for data and plots can be found in /Output/Plots
     
-    (0.5) Aufruf: 
-        ad_analyze() wird in vfield_dyn und fsim aufgerufen
+    (0.5) Call of ad_analyze: 
+        ad_analyze() is in vfield_dyn.cpp and fsim.cpp
         
-    (1) korrektes makefile wird mitgeliefert:
+    (1) Build using the makefile:
         $ make fsim
         $ ./fsim
         
-    (2) in gnuplot filename aus ad_analyze übertragen
-        plotAll, Zeile 15:
+    (2) Modify ad_plot to plot desired data:
+        for example:
         f="zwischenf_200" 
         
-    (3) gnuplot plotten lassen
+    (3) Call gnuplot:
         $ gnuplot
-        $ load "plotAll"
+        $ load "ad_plot"
         
 
-PROGRAMMSTRUKTUR
-=================
-    ad_analyze teilt sich in 6 Abschnitte: 
-    
-    (1) SETUP - Deklariert alle "wichtigen" Parameter und Container.
-    (2) TRANSLATION - Intialpunkte, die in der Nähe des Randes liegen, werden translatiert
-    (3) TRIANGULATION - Macht alles delabella
-    (4) ADJACENCY - Geht durch Dreiecke durch und schreibt Informationen in Eigen::Matrizen
-    (5) SHIFTS AND ENERGIES - Rechnet calcWW für alle Punkte in region of interest
-    (6) OUTPUT - Jeder Output hat eine Entsprechung in ad_plot
 
-
-    
-CONTAINER
-=========
-    adNum   Eigen::Vector. Enthält in Zeile (i) die Anzahl der Adjazenten des Punktes (i)
-    
-    adIndex Eigen::Matrix. Enthält in Zeile (i) die Indices der Adjazenten des Punktes (i).
-            Jede Spalte entspricht dann einem der Adjazenten. 
-            Somit stehen von Spalte 0 bis adNum(i) die Indices, danach ist 0 eingetragen.
-            
-    regE    Eigen::Vector. Enthält in Zeile (i) die Energie des Punktes (i) am Ausgangspunkt, 
-            vor einer Verschiebung. Je nachdem wo ad_analyze aufgerufen wird, kann man sich das sparen
-            und den container aus fsim verwenden.
-            
-    shiftxy Eigen::Matrix. Enthält in Zeile (2*i) und (2*i +1) die x und y Koordinaten die zu den Adjazenten zeigen.
-            Jede Spalte entspricht dann dem Vektor zu einem der Adjazenten. Die Vektoren sind NICHT normiert.
-            Wieder gilt: von Spalte 0 bis adNum(i) stehen Vektoren, danach 0.
-            
-    shiftE  Eigen::Matrix. Enthält in Zeile i die Energien nach den shifts in Richtung der Adjazenten.
-            Auch hier entsprechen den Spalten den verschiedenen Adjazenten.
-    
-    extendCloud Array aus struct MyPoint. Dieses Format wird für delabella verwendet. Reihenfolge der Punkte,
-                dh die Indices, bleiben erhalten. Es reserviert 9 mal die Anzahl der Intialpunkte, 
-                um für alle Ansammlungen von Punkten zu funktionieren.
-                
-    Cloud       Array aus struct MyPoint. Genau gleich wie extendCloud, nur resized auf die Anzahl der Punkte
-                die zur Triangulation kommen. 
-                
-    delabella   Structs sind in delabella.h selbsterklärend definiert. 
-                Wichtig: Die Indizes bleiben alle erhalten.
