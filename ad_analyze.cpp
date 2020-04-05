@@ -10,7 +10,7 @@
  * ADJACENCY, SHIFTS AND ENERGIES, OUTPUT
 */
 
-#include "delabella.h" //Andreas: muss vor vfield.hpp wegen define xy...
+#include "delabella.h" //Andreas: must be bevore vfield.hpp, becouse of (define xy).
 #include "vfield.hpp"
 #include <iostream>
 #include <fstream>
@@ -190,7 +190,7 @@ void vortex_field_direct::ad_analyze( double rxu, double rxl, double ryu, double
         
         for (int j=0; j<pnr; j++) // Calc E un-shifted for further calculation.
         {
-            regE(pnr) += calcWW(pnr, j, false); // WW between i and j.
+            regE(pnr) += calcWW(pnr, j, false); // WW between pnr and j.
         }
         for (int j=pnr+1; j<flc; j++) 
         {
@@ -210,7 +210,7 @@ void vortex_field_direct::ad_analyze( double rxu, double rxl, double ryu, double
             
             for (int j=0; j<pnr; j++) // WW between pnr and all other points.
             {
-                shiftE(pnr, k) += calcWW(pnr, j, false); // WW between i and j.
+                shiftE(pnr, k) += calcWW(pnr, j, false); // WW between pnr and k.
             }
             for (int j=pnr+1; j<flc; j++) 
             {

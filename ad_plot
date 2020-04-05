@@ -1,0 +1,84 @@
+
+# ============Settings==========
+set term png enhanced size 2000, 1800 font "Verdana, 20"
+set key at 4.5,4.5
+set style line 11 lc rgb '#808080' lt 1
+set size square
+set size ratio -1
+set xrange[-4.8:4.8] # Garanties same size between plots. 
+set yrange[-4.8:4.8] 
+set xlabel "x / {/Symbol l}m" font "Verdana, 30"
+set ylabel "y / {/Symbol l}m" font "Verdana, 30"
+unset title
+
+# ============File locations==========
+# Files to plot.
+f="zwischenf_0"
+
+# File location.
+s="Output/"
+
+# Output location.
+d="Output/Plots/"
+
+
+# ============Indices of initial points==========
+#set output d.f."_indices.png"
+#plot s.f."_indices.dat" using 1:2:3 with labels notitle
+
+
+# ============Indices of all, with box==========
+#xl=7.86 # Edit by hand.
+#yl=6.98
+#set arrow 1 from xl/2,-4 to xl/2,4 nohead  lw 2 lc rgb "dark-orange" # Box.
+#set arrow 2 from -4.5,yl/2 to 4.5,yl/2 nohead lw 2 lc rgb "dark-orange" 
+#set arrow 3 from -xl/2,-4 to -xl/2,4 nohead lw 2 lc rgb "dark-orange" 
+#set arrow 4 from -4.5,-yl/2 to 4.5,-yl/2 nohead lw 2 lc rgb "dark-orange" 
+
+#set output d.f."_indicesfull.png"
+#plot s.f."_indicesfull.dat" using 1:2:3 with labels notitle font "8, 14" tc rgb "grey"
+#unset arrow
+
+
+# ============Adjacencies==========
+#set cbrange [4:8]
+#set palette rgbformulae 33,13,10
+#set cbtics 1
+#set output d.f."_adjacencies.png"
+#plot s.f."_adjacencies.dat" using 1:2:3 with points title "Adjazenten" pt 7 ps 2 lc palette
+  
+  
+# ============Triangulation==========  
+set cbrange [4:8] # <4 adjacencies same colour as =4.
+set palette rgbformulae 33,13,10 
+set cbtics 1 # Farbskala Schritte.
+set output d.f."_triangulation.png"
+plot s.f."_triangulation.dat" using 1:2 with linespoints title "Triangulation" ls 1 lc rgb "grey", "" using 1:2:3 with points title "Anzahl Adjazenten" pt 7 ps 2 lc palette
+
+
+# ============Settings for energy related plots==========
+# Different colour and (optional) size,
+# depends on the region of interest spezified.
+set size square
+set size ratio -1
+set xrange[-4.8:4.8] # Edit by hand.
+set yrange[-4.8:4.8] 
+unset cbrange
+set cbtics auto
+#set palette rgbformulae 7,5,15 # Alternative palette (black-blue-red-yellow).
+load 'moreland.pal' # Better colours.
+
+
+
+# ============Energy shifted==========
+set output d.f."_dEshift.png"
+plot s.f."_dEshift.dat" using 1:2:3:4:5 with vectors title "{/Symbol D}E(shift) / Distanz" filled lw 3 lc palette
+
+
+# ============Energy-Difference adjacent==========
+unset cbrange
+set cbtics auto
+set output d.f."_dEadjacent.png"
+plot s.f."_dEadjacent.dat" using 1:2:3:4:5 with vectors title "{/Symbol D}E(Adjazenten) / Abstand" filled lw 3 lc palette
+
+

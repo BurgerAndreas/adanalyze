@@ -12,9 +12,9 @@ de:
     
 QUICKSTART
 ==========
-    (0) Beispiele für Daten und plots finden sich in /Output/Plots
+    (0) Beispiele für Daten und Plots finden sich in /Output/Plots
     
-    (0.5) Fürs Protokoll: 
+    (0.5) Aufruf: 
         ad_analyze() wird in vfield_dyn und fsim aufgerufen
         
     (1) korrektes makefile wird mitgeliefert:
@@ -35,19 +35,12 @@ PROGRAMMSTRUKTUR
     ad_analyze teilt sich in 6 Abschnitte: 
     
     (1) SETUP - Deklariert alle "wichtigen" Parameter und Container.
-    (2) TRANSLATION - Intialpunkte die in der Nähe des Randes liegen werden translatiert
+    (2) TRANSLATION - Intialpunkte, die in der Nähe des Randes liegen, werden translatiert
     (3) TRIANGULATION - Macht alles delabella
     (4) ADJACENCY - Geht durch Dreiecke durch und schreibt Informationen in Eigen::Matrizen
     (5) SHIFTS AND ENERGIES - Rechnet calcWW für alle Punkte in region of interest
-    (6) OUTPUT - Jeder Output hat einen gnuplot in plotAll
-    
-    
-ANMERKUNGEN
-===========
-    - Mit Abstand am langsamsten ist der SHIFTS AND ENERGIES Abschnitt
-    
-    - Mit den quadratischeren Abmessungen xcnt=40, ycnt=34 kommen Abweichungen für die Energien vor
-      siehe dafür die zwischenf_0_... plots
+    (6) OUTPUT - Jeder Output hat eine Entsprechung in ad_plot
+
 
     
 CONTAINER
@@ -72,7 +65,6 @@ CONTAINER
     extendCloud Array aus struct MyPoint. Dieses Format wird für delabella verwendet. Reihenfolge der Punkte,
                 dh die Indices, bleiben erhalten. Es reserviert 9 mal die Anzahl der Intialpunkte, 
                 um für alle Ansammlungen von Punkten zu funktionieren.
-                Im Normallfall kann das getrost auf 2 mal der Anzahl reduziert werden.
                 
     Cloud       Array aus struct MyPoint. Genau gleich wie extendCloud, nur resized auf die Anzahl der Punkte
                 die zur Triangulation kommen. 
