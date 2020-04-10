@@ -552,8 +552,9 @@ int vortex_field_direct::relax(double force, int actstep)
 			// std::cerr << "writing "<< outfil1.str() << std::endl;
             ww_save(outfil1.str());            
             }
+           
+            if (tries%100==0) { ad_analyze(-1., -1., -1., -1., "zwischenf_"+to_string(currstep)+"_"+to_string(tries), force); } //call ad_analyze
             
-            if (tries%100==0) ad_analyze(-1., -1., -1., -1., "zwischenf_"+to_string(tries)  ); //call ad_analyze
             
       tries++;
       }

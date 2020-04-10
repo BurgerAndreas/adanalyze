@@ -23,12 +23,11 @@
 using namespace std;
 using namespace std::chrono;
 
-void vortex_field_direct::ad_analyze( double rxu, double rxl, double ryu, double ryl, string filename ) // Default values and declaration in vfield.hpp.
+void vortex_field_direct::ad_analyze( double rxu, double rxl, double ryu, double ryl, string filename, double extForce ) // Default values and declaration in vfield.hpp.
 {
     cout <<"\n\n\t=== ad_analyze started ==="<<endl; // Startup message.
-    cout <<"\tpassed " <<rxu <<" " <<rxl <<" " <<ryu <<" " <<ryl <<endl; // Passed parameters.
-    if( rxu!=-1 || rxl!=-1 || ryu!=-1 || ryl !=-1) filename+="roi"; // If region of interest spezified, mark output files.
-    
+    cout <<"\tpassed " <<rxu <<" " <<rxl <<" " <<ryu <<" " <<ryl <<" " <<extForce <<endl; // Passed parameters.
+    if( rxu!=-1 || rxl!=-1 || ryu!=-1 || ryl !=-1) filename+="_roi"; // If region of interest spezified, mark output files.
     
     // ====================== SETUP ======================
     struct MyPoint // Needed for delabella.
@@ -43,7 +42,7 @@ void vortex_field_direct::ad_analyze( double rxu, double rxl, double ryu, double
     const double edge=1.5*a0; // Definition of near-boundary for translation. 
     const double lx = xl, ly = yl; // Boundary containing initial points.
     const int flc = num; // Number of initial points.
-    const double norm=a0/10; // Defines length of shift towards adjacent points.
+    const double norm=a0/100; // Defines length of shift towards adjacent points.
     int ix , iy; // Temp variable used for iteration in various loops.
     string destination = "./Output/"; // Location of output files.  
     
@@ -51,7 +50,7 @@ void vortex_field_direct::ad_analyze( double rxu, double rxl, double ryu, double
     Eigen::VectorXd adNum = Eigen::VectorXd::Zero( flc ); // Number of adjacencies for a point.
     Eigen::Matrix<int, Eigen::Dynamic, Eigen::Dynamic> adIndex( flc, nbrange ); // Indices of adjacent points.
     Eigen::MatrixXd shiftE = Eigen::MatrixXd::Zero( flc, nbrange ); // Energies after shift towards adjacent points.           
-    Eigen::MatrixXd shiftxy = Eigen::MatrixXd::Zero( flc*2, nbrange ); // Vectors towards adjacent points. 
+    Eigen::MatrixXd adVec = Eigen::MatrixXd::Zero( flc*2, nbrange ); // Vectors towards adjacent points. 
     Eigen::VectorXd regE = Eigen::VectorXd::Zero( flc ); // Energies un-shifted, in case not already calculated.
     
     
@@ -149,24 +148,24 @@ void vortex_field_direct::ad_analyze( double rxu, double rxl, double ryu, double
         if( d0i < flc ){ // Only information for initial points noted.
             adIndex( d0i, adNum(d0i) ) = cloud[ d1i ].ind; // Save Indices of adjacent points.    
             
-            shiftxy( 2*d0i, adNum(d0i) ) = (cloud[d1i].x - cloud[d0i].x); // Shift towards adjacent point.    
-            shiftxy( (2*d0i)+1, adNum(d0i) ) = (cloud[d1i].y - cloud[d0i].y); 
+            adVec( 2*d0i, adNum(d0i) ) = (cloud[d1i].x - cloud[d0i].x); // Shift towards adjacent point.    
+            adVec( (2*d0i)+1, adNum(d0i) ) = (cloud[d1i].y - cloud[d0i].y); 
             
             adNum( d0i )++; // Count number of adjacencies. 
         }  
         if( d1i < flc ){
             adIndex( d1i, adNum(d1i) ) = cloud[ d2i ].ind;   
             
-            shiftxy( 2*d1i, adNum(d1i) ) = (cloud[d2i].x - cloud[d1i].x);
-            shiftxy( (2*d1i)+1, adNum(d1i) ) = (cloud[d2i].y - cloud[d1i].y);
+            adVec( 2*d1i, adNum(d1i) ) = (cloud[d2i].x - cloud[d1i].x);
+            adVec( (2*d1i)+1, adNum(d1i) ) = (cloud[d2i].y - cloud[d1i].y);
             
             adNum( d1i )++; 
         }
         if( d2i < flc ){
             adIndex( d2i, adNum(d2i) ) = cloud[ d0i ].ind;
             
-            shiftxy( 2*d2i, adNum(d2i) ) = (cloud[d0i].x - cloud[d2i].x);
-            shiftxy( (2*d2i)+1, adNum(d2i) ) = (cloud[d0i].y - cloud[d2i].y);
+            adVec( 2*d2i, adNum(d2i) ) = (cloud[d0i].x - cloud[d2i].x);
+            adVec( (2*d2i)+1, adNum(d2i) ) = (cloud[d0i].y - cloud[d2i].y);
             
             adNum( d2i )++; 
         }
@@ -177,7 +176,7 @@ void vortex_field_direct::ad_analyze( double rxu, double rxl, double ryu, double
     // ====================== SHIFTS AND ENERGIES ====================== 
     auto t4 = high_resolution_clock::now(); // Timekeeping.
     double xsav, ysav; // Temp save before shift.
-    double shiftlen; // Temp variable for length of shift.
+    double shiftlen; // Temp variable for length of shift / length of vector.
     if( rxu==(-1.) ) rxu=  lx/2; // Region of interest for shifted energy calculation.
     if( rxl==(-1.) ) rxl= -lx/2; // If passed as default value, calc whole region.
     if( ryu==(-1.) ) ryu=  ly/2;
@@ -204,9 +203,9 @@ void vortex_field_direct::ad_analyze( double rxu, double rxl, double ryu, double
         
         for (int k=0; k<adNum(pnr); k++) // Will calc energies after shift towards adjacent points. 
         {
-            shiftlen = norm / hypot(shiftxy(ix,k),shiftxy(iy,k));
-            xy(ix)= xsav + shiftxy(ix,k)* shiftlen; // Execute shift with length norm.
-            xy(iy)= ysav + shiftxy(iy,k)* shiftlen;              
+            shiftlen = norm / hypot(adVec(ix,k),adVec(iy,k));
+            xy(ix)= xsav + (adVec(ix,k) * shiftlen); // Execute shift with length norm.
+            xy(iy)= ysav + (adVec(iy,k) * shiftlen);              
             
             for (int j=0; j<pnr; j++) // WW between pnr and all other points.
             {
@@ -224,37 +223,11 @@ void vortex_field_direct::ad_analyze( double rxu, double rxl, double ryu, double
     
     // ====================== OUTPUT ======================
     auto t5 = high_resolution_clock::now(); // Timekeeping.
-    /*
-    // Output energies before shift towards adjacent points.     
-    ofstream oregE(destination+filename+"_regE.dat"); 
-    oregE <<regE <<endl;
-    oregE.close(); 
+   
     
-    // Output energies after shift towards adjacent points.     
-    ofstream oshiftE(destination+filename+"_shiftE.dat"); 
-    oshiftE <<shiftE <<endl;
-    oshiftE.close();
-    
-    // Output indices of initial points.
-    ofstream oindex(destination+filename+"_indices.dat"); 
-    for (int j = 0; j < flc; j++) 
-    {
-        ix = 2 * j;
-        iy = ix + 1;        
-        oindex << xy(ix) <<" " << xy(iy) <<" " <<j <<endl;
-    } oindex.close();
-
-
-    // Output indices of initial and translated points
-    ofstream oindexfull(destination+filename+"_indicesfull.dat");
-    for (int j=0; j<triaNum; j++)
-    {
-        oindexfull <<cloud[j].x <<" " <<cloud[j].y <<" " <<cloud[j].ind <<endl;
-    } oindexfull.close();
-    */
     
     // Output difference in regularE between adjacent points
-    ofstream odregEnb(destination+filename+"_dEadjacent.dat");
+    ofstream odregEnb(destination+filename+"_dEad.dat");
     odregEnb <<"# x y xvec_nb yvec_nb regE(nb)-regE(xy)" <<endl;
     for (int j=0; j<flc; j++) // All points.
     {
@@ -263,11 +236,12 @@ void vortex_field_direct::ad_analyze( double rxu, double rxl, double ryu, double
             ix = j * 2;
             iy = ix + 1;
             odregEnb <<xy(ix) <<" " <<xy(iy) <<" "
-            << shiftxy(ix,k)/2.3 <<" " <<shiftxy(iy,k)/2.3 <<" " // Length of vector in plot.
-            <<( regE(adIndex(j,k)) - regE(j) ) / hypot(shiftxy(ix,k),shiftxy(iy,k))<<endl;
+            << adVec(ix,k)/2.3 <<" " <<adVec(iy,k)/2.3 <<" " // Length of vector in plot.
+            <<( regE(adIndex(j,k)) - regE(j) ) / hypot(adVec(ix,k),adVec(iy,k))<<endl;
             // Note that with the logic used in segment ADJACENCY, we have every adjacency twice.
         }
-    } odregEnb.close();
+    } odregEnb <<"# extForce= " <<extForce <<endl;
+    odregEnb.close();
     
     
     
@@ -285,12 +259,14 @@ void vortex_field_direct::ad_analyze( double rxu, double rxl, double ryu, double
         for(int k=0; k<adNum(j); k++)
         {           
             odiffE <<xy(ix) <<" " <<xy(iy) 
-            <<" " <<shiftxy(ix,k)/2.3 <<" " <<shiftxy(iy,k)/2.3 // Length of vector in plot.
-            <<" " <<(shiftE(j,k)-regE(j)) / norm <<endl;  // Norm is length of shift.
+            <<" " <<adVec(ix,k)/2.3 <<" " <<adVec(iy,k)/2.3 // Length of vector in plot.
+            <<" " <<( shiftE(j,k)-regE(j) )/norm <<endl;  
+            // Calcs in the extForce in x direction, over length of shift in x direction.
         }
-    } odiffE <<"# " <<rxu <<" " <<rxl <<" " <<ryu <<" " <<ryl <<endl; // Boundary of points.
+    } odiffE <<"# rxu/l ryu/l norm extForce: " <<rxu <<" " <<rxl <<" " <<ryu <<" " <<ryl <<" " <<norm <<" " <<extForce <<endl; // Boundary of points.
     odiffE.close();
     
+
     
     // Output triangulation with number of adjacencies.
     dela = idb->GetFirstDelaunayTriangle();    
@@ -310,12 +286,24 @@ void vortex_field_direct::ad_analyze( double rxu, double rxl, double ryu, double
             otrian << dela->v[2]->x <<" " << dela->v[2]->y <<" " <<adNum( d2i ) <<"\n" <<endl;
         }else{otrian << dela->v[2]->x <<" " << dela->v[2]->y <<" " <<0 <<"\n"<<endl;}    
         
-        // Points of the same triangle will form block of threes. Enables gnuplot linespoints.
+        // Points of the same triangle will form block of threes. Enables gnuplot linespoints command.
         dela = dela->next;
     } otrian <<"# " <<lx/2 <<" " <<-lx/2 <<" " <<ly/2 <<" " <<-ly/2 <<endl; // Boundary of points.
     otrian.close(); 
     
     
+    // Output pinned points.
+    ofstream opinn(destination+filename+"_pinned.dat");
+    for(int j = 0; j<flc; j++)
+    {
+        ix = 2 * j;
+        iy = ix + 1;
+        if (prop(j) < 0) opinn << xy(ix) <<" " << xy(iy) <<" " << prop(j) <<endl;
+    } opinn.close();
+    
+    
+    
+    // Finish.
     delete[] cloud; 
     idb->Destroy(); // DelaBella triangulation.
     

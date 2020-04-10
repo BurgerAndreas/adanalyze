@@ -129,12 +129,12 @@ int main(int argc, char*argv[])
     vf.ww_save("../largerelax.dat",11);
   }
   
-  external_force = 0.1;// 5.12e-3; // 1.e-5;
+  external_force = 0.1; // 5.12e-3; // 1.e-5; // vor Andreas 0.1
   vf.set_ext_force(external_force);  
-  Kforce = 2*external_force;
+  Kforce = 2*external_force; // vor Andreas 2*
 
   
-  for(int i = 1; i < 12; Kforce*=0.5, i++)  {  //  Kforce Änderung!!!!!
+  for(int i = 1; i < 12; Kforce*=0.5, i++)  {  //  Kforce Änderung!!!!! // vor Andreas *=0.5
     // external_force*=2;
     // vf.set_ext_force(external_force);
     
@@ -153,8 +153,7 @@ int main(int argc, char*argv[])
     
     
     //Andreas: ad_analyze aufrufen.
-    //vf.ad_analyze(2., 0., 2., 0., to_string(i)  ); //Pass coordinates for region of interest: rxu, rxl, ryu, ryl
-    //vf.ad_analyze(-1., -1., -1., -1., to_string(i)  ); //Default=(-1) will calc all points. String filename. 
+    //vf.ad_analyze(-1., -1., -1., -1., "step_"+to_string(i), Kforce); //Default=(-1) will calc all points. 
     
     
     vf.xy_save(outfilename.str(),11);

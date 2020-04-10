@@ -342,7 +342,7 @@ public:
     void setNpinned(int p); // pin the first p vortices
     
   
-    void ad_analyze( double rxu=(-1.), double rxl=(-1.), double ryu=(-1.), double ryl=(-1.), string filename="" ); 
+    void ad_analyze( double rxu=(-1.), double rxl=(-1.), double ryu=(-1.), double ryl=(-1.), string filename="", double extForce=(0.) ); 
     //Andreas Mach-Alles Funktion deklariert; r(x/y)(upper/lower) ist Punkte-Bereich für den E berechnet wird
     
   
