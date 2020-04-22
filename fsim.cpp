@@ -129,12 +129,12 @@ int main(int argc, char*argv[])
     vf.ww_save("../largerelax.dat",11);
   }
   
-  external_force = 0.1; // 5.12e-3; // 1.e-5; // vor Andreas 0.1
+  external_force = 0.1; // 5.12e-3; // 1.e-5; // Andreas 0.1 oder 0.01
   vf.set_ext_force(external_force);  
-  Kforce = 2*external_force; // vor Andreas 2*
+  Kforce = 2*external_force; // Andreas 2* oder 1*
 
   
-  for(int i = 1; i < 12; Kforce*=0.5, i++)  {  //  Kforce Änderung!!!!! // vor Andreas *=0.5
+  for(int i = 1; i < 12; Kforce*=0.5, i++)  {  //  Kforce Änderung!!!!! // Andreas *=0.5 oder *=0.9
     // external_force*=2;
     // vf.set_ext_force(external_force);
     
